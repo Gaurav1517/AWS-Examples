@@ -60,49 +60,49 @@ pipeline {
             }
         }
         
-        // stage('Docker Image Tag') {
-        //     // Rename the Docker Image before pushing to Dockerhub
-        //     steps{
-        //           script {
-        //             def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
-        //             sh "docker tag ${JOB}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:v${BUILD_NUMBER}"
-        //             sh "docker tag ${JOB}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:latest"
-        //           }
-        //     } 
-        // }
+        stage('Docker Image Tag') {
+            // Rename the Docker Image before pushing to Dockerhub
+            steps{
+                  script {
+                    def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
+                    sh "docker tag ${JOB}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:v${BUILD_NUMBER}"
+                    sh "docker tag ${JOB}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:latest"
+                  }
+            } 
+        }
         
-        // stage('Trivy Image Scan') {
-        //     // Scan Docker images for vulnerabilities 
-        //     steps{
-        //         script { 
-        //           def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
-        //           sh "trivy image --format table ${DOCKER_USERNAME}/${JOB}:v${BUILD_NUMBER} -o image-report.html"
-        //         }
-        //     }
-        // }
+        stage('Trivy Image Scan') {
+            // Scan Docker images for vulnerabilities 
+            steps{
+                script { 
+                  def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
+                  sh "trivy image --format table ${DOCKER_USERNAME}/${JOB}:v${BUILD_NUMBER} -o image-report.html"
+                }
+            }
+        }
         
-        // stage('Docker Image Push') {
-        //     // Login to Dockerhub & Push the image to Dockerhub
-        //     steps{
-        //         script { 
-        //             withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) { 
-        //                 sh "docker login -u '${docker_user}' -p '${docker_pass}'" 
-        //                 def JOB = env.JOB_NAME.toLowerCase() 
-        //                 // Convert Jenkins Job name to lower-case 
-        //                 sh "docker push ${docker_user}/${JOB}:v${BUILD_NUMBER}" 
-        //                 sh "docker push ${docker_user}/${JOB}:latest"
-        //             }
-        //         } 
-        //     }
-        // }
+        stage('Docker Image Push') {
+            // Login to Dockerhub & Push the image to Dockerhub
+            steps{
+                script { 
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) { 
+                        sh "docker login -u '${docker_user}' -p '${docker_pass}'" 
+                        def JOB = env.JOB_NAME.toLowerCase() 
+                        // Convert Jenkins Job name to lower-case 
+                        sh "docker push ${docker_user}/${JOB}:v${BUILD_NUMBER}" 
+                        sh "docker push ${docker_user}/${JOB}:latest"
+                    }
+                } 
+            }
+        }
 
-        // stage('Docker Image Cleanup') {
-        //     // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
-        //     steps{
-        //         script { 
-        //           sh "docker image prune -af"
-        //         }
-        //     }
-        // }
+        stage('Docker Image Cleanup') {
+            // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
+            steps{
+                script { 
+                  sh "docker image prune -af"
+                }
+            }
+        }
     }
 }
